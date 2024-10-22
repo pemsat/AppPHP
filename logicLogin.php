@@ -11,7 +11,7 @@ function test_input($data){
     return $data;
  }
 
-// Comprobamos si ya hay una sesión activa -- Revisar
+// Comprobamos si ya hay una sesión activa
 if (isset($_SESSION['user'])) {
     header("Location: user.php");
     exit();
