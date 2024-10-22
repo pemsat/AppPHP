@@ -12,7 +12,7 @@ const TARGET_DIR = "uploads/";
 // Cargar la información del usuario desde la cookie, si existe
 if (isset($_COOKIE['recuerdo']) && !empty($_COOKIE['recuerdo'])) {
 
-    $usuariosJson = file_get_contents('../data/users.json');
+    $usuariosJson = file_get_contents('../../data/users.json');
     $usuarios = json_decode($usuariosJson, true);
 
     foreach ($usuarios as $usuario) {
@@ -44,7 +44,7 @@ if (isset($_POST['logout'])) {
 // Función para eliminar cuenta de usuario
 function deleteUserAccount($userData)
 {
-    $usuariosJson = file_get_contents('../data/users.json'); //Leemos el archivo JSON de usuarios
+    $usuariosJson = file_get_contents('../../data/users.json'); //Leemos el archivo JSON de usuarios
     $usuarios = json_decode($usuariosJson, true);
 
     //Búsqueda y verificación de datos de usuario para borrar
@@ -59,7 +59,7 @@ function deleteUserAccount($userData)
         }
     }
 
-    if (file_put_contents('../data/users.json', json_encode(array_values($usuarios), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))) {
+    if (file_put_contents('../../data/users.json', json_encode(array_values($usuarios), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))) {
         return true; //guardamos de nuevo la información de usuarios  y comprobamos si todo el proceso se ha realizado correctamente
     }
     return false;
