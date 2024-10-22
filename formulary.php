@@ -76,7 +76,7 @@
         </span>
         <br><br>
 
-        Contraseña: <input type="password" name="password" size="28">
+        Contraseña: <input type="password" name="password" size="28" placeholder="mín: 8 caracteres, Mayúscula, minúscula, símbolo y número">
         <span class="passwError">*
           <?php echo isset($_SESSION['passwordError']) ? htmlspecialchars($_SESSION['passwordError']) : '' ?>
         </span>
