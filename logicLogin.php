@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $userpassword = test_input($_POST['password']);
 
     //Comparamos los datos recogidos y saneados con los guardados en JSON
-    $users = json_decode(file_get_contents('../data/users.json'), true);
+    $users = json_decode(file_get_contents('../../data/users.json'), true);
 
     foreach ($users as $user) {
         if (($user['nombre'] === $username || $user['email'] === $username) && password_verify($userpassword, $user['contraseña'])) {
