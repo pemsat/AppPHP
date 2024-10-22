@@ -1,12 +1,15 @@
 <?php
-//Inicio de sesión
 session_start();
-$error = false;
-$_SESSION['form_data'] = $_POST;
+
+$error = false; //Variable de control de errores
+
+$_SESSION['form_data'] = $_POST; //Variable para devolver datos correctos al usuario cuando se equivoca en uno o más campos
 
 /**
- * Variables para recoger datos y sanitizados
+ * FORMULARIO
  */
+
+ //Variables para controlar los datos de usuario
 $name = $surname = $email = $birth = $age = $password1 = $password2 = $fileToUpload = "";
 
 //Funcion que recoge los datos y los pasa por una función antes de guardarlos en sus variables correspondientes
@@ -20,10 +23,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
    $password2 = test_input($_POST["password2"]);
 }
 
-/** 
- * Funcion que sanitiza datos de entrada del usuario 
- */
-function test_input($data)
+
+//Funcion que sanitiza datos de entrada del usuario 
+ function test_input($data)
 {
    $data = trim($data);
    $data = stripslashes($data);
@@ -31,17 +33,16 @@ function test_input($data)
    return $data;
 }
 
-/**
- * funcion para comprobar datos de tipo texto (Nombre y Apellido/s)
- */
+
+//funcion para comprobar datos de tipo texto (Nombre y Apellido/s)
 function test_text($data)
 {
    $textpattern = "/^[a-zA-ZÀ-ÿ\u00f1\u00d1]+(\s*[a-zA-ZÀ-ÿ\u00f1\u00d1]*)*[a-zA-ZÀ-ÿ\u00f1\u00d1]+$/";
    return preg_match_all($textpattern, $data);
 }
-/**
- * Comprobamos el nombre
- */
+
+
+//Comprobamos el nombre
 if (!empty($name)) {
    if (test_text($name) === 0) {
       $_SESSION["nameError"] = "El nombre sólo puede contener letras";
@@ -53,9 +54,8 @@ if (!empty($name)) {
    $error = true;
 }
 
-/**
- * Comprobamos los Apellidos
- */
+
+//Comprobamos los Apellidos
 if (!empty($surname)) {
    if (test_text($surname) === 0) {
       $_SESSION["surNameError"] = "El apellido solo puede contener letras";
@@ -68,9 +68,8 @@ if (!empty($surname)) {
    $error = true;
 }
 
-/**
- * Comprobación del email
- */
+
+//Comprobación del email
 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
    $usuariosJson = file_get_contents('../data/users.json');
    $usuarios = json_decode($usuariosJson, true);
@@ -94,9 +93,8 @@ if (isset($_COOKIE['username']) && !empty($_COOKIE['username'])) {
 
 
 }
-/**
- * Comprobamos la fecha de nacimiento y si es correcta, la edad
- */
+
+//Comprobamos la fecha de nacimiento y si es correcta, la edad
 if (empty($birth) || !DateTime::createFromFormat('Y-m-d', $birth)) {
    $_SESSION["ageError"] = "La fecha no puede estar vacía o no es válida";
    $error = true;
@@ -113,9 +111,9 @@ if (empty($birth) || !DateTime::createFromFormat('Y-m-d', $birth)) {
    }
 }
 
-/**
- * Comprobamos las contraseñas
- */
+
+//Comprobamos las contraseñas
+
 if (!empty($password1)) {
    if ($password1 === $password2) {
       $pattern = "/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/";
@@ -138,8 +136,9 @@ if (!empty($password1)) {
 
 
 /**
- * Comprobamos los datos de la imagen
+ * IMAGEN FORMULARIO
  */
+
 // Validaciones del archivo
 $target_dir = "uploads/";
 $target_file = $target_dir . basename($fileToUpload["name"]);
