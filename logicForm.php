@@ -71,7 +71,7 @@ if (!empty($surname)) {
 
 //Comprobación del email
 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-   $usuariosJson = file_get_contents('../data/users.json');
+   $usuariosJson = file_get_contents('../../data/users.json');
    $usuarios = json_decode($usuariosJson, true);
 
    foreach ($usuarios as $key => $usuario) {
@@ -87,11 +87,10 @@ if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
    $error = true;
 }
 
-
+//Devolvemos a user si la cookie está creada para recordar y se intenta acceder al formulario por destino
 if (isset($_COOKIE['username']) && !empty($_COOKIE['username'])) {
-
-
-
+   header("Location: user.php");
+   exit();
 }
 
 //Comprobamos la fecha de nacimiento y si es correcta, la edad
@@ -190,7 +189,7 @@ if ($error) {
    ];
 
    // Leer el archivo JSON existente
-   $filePath = '../data/users.json';
+   $filePath = '../../data/users.json';
 
    $currentData = [];
    if (file_exists($filePath)) {
