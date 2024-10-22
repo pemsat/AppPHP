@@ -1,17 +1,24 @@
 <?php
 session_start();
 
+
+/**
+ * USUARIO
+ */
+
+//Variable para controlar la dirección de subida de imágenes
 const TARGET_DIR = "uploads/";
 
 // Cargar la información del usuario desde la cookie, si existe
 if (isset($_COOKIE['recuerdo']) && !empty($_COOKIE['recuerdo'])) {
+
     $usuariosJson = file_get_contents('../data/users.json');
     $usuarios = json_decode($usuariosJson, true);
 
     foreach ($usuarios as $usuario) {
         if ($usuario['email'] === $_COOKIE['recuerdo']) {
-            $_SESSION['user'] = $usuario;
-            $imagePath = TARGET_DIR . $usuario['imagen'];
+            $_SESSION['user'] = $usuario; //Guardamos los datos del usuario en variable SESSION
+            $imagePath = TARGET_DIR . $usuario['imagen']; //concatenamos dirección de imagen con nombre para mostrarla correctamente
             break;
         }
     }
@@ -22,37 +29,38 @@ if (!isset($_SESSION['user']) && !isset($_COOKIE['recuerdo'])) {
     header("Location: index.php");
     exit();
 } else {
-    $userData = $_SESSION['user'];
+    $userData = $_SESSION['user']; //Guardamos los datos de la sesión de usuario mientras está conectado
     $imagePath = TARGET_DIR . $userData['imagen'];
 }
 
 // Manejo de cierre de sesión
 if (isset($_POST['logout'])) {
-    setcookie("recuerdo", "", time() - 3600, "/");
-    session_destroy();
-    header("Location: index.php");
+    setcookie("recuerdo", "", time() - 3600, "/"); //Borramos la cookie
+    session_destroy(); //desturimos la sesión
+    header("Location: index.php"); //Redirigimos a index
     exit();
 }
 
 // Función para eliminar cuenta de usuario
 function deleteUserAccount($userData)
 {
-    $usuariosJson = file_get_contents('../data/users.json');
+    $usuariosJson = file_get_contents('../data/users.json'); //Leemos el archivo JSON de usuarios
     $usuarios = json_decode($usuariosJson, true);
 
+    //Búsqueda y verificación de datos de usuario para borrar
     foreach ($usuarios as $key => $usuario) {
         if ($usuario['nombre'] === $userData['nombre'] && $usuario['email'] === $userData['email']) {
-            $imagePath = TARGET_DIR . $usuario['imagen'];
+            $imagePath = TARGET_DIR . $usuario['imagen']; //concatenamos a nivel local la dirección de imagen con su nombre
             if (file_exists($imagePath)) {
-                unlink($imagePath);
+                unlink($imagePath); //Borramos la imagen después de comprobar que existe para evitar errores
             }
-            unset($usuarios[$key]);
+            unset($usuarios[$key]);//Borramos usuario
             break;
         }
     }
 
     if (file_put_contents('../data/users.json', json_encode(array_values($usuarios), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))) {
-        return true;
+        return true; //guardamos de nuevo la información de usuarios  y comprobamos si todo el proceso se ha realizado correctamente
     }
     return false;
 }
@@ -69,4 +77,3 @@ if (isset($_POST['delete_account'])) {
         exit();
     }
 }
-?>
