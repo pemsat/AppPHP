@@ -2,8 +2,10 @@
 session_start();
 
 /** 
- * Funcion que sanitiza datos de entrada del usuario 
+ * lOGIN
  */
+
+//Funcion que sanitiza datos de entrada del usuario 
 function test_input($data){
     $data = trim($data);
     $data = stripslashes($data);
@@ -13,7 +15,7 @@ function test_input($data){
 
 // Comprobamos si ya hay una sesión activa
 if (isset($_SESSION['user'])) {
-    header("Location: user.php");
+    header("Location: user.php");//Redirigimos a página de usuario
     exit();
 }
 
