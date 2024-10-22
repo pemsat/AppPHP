@@ -68,7 +68,7 @@
         <p style="color:red;"><?php echo htmlspecialchars($_SESSION['error']); ?></p>
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
-    <h1>Bienvenido, <?php echo htmlspecialchars($userData['nombre'] . " " . $userData['apellidos']); ?>!</h1>
+    <h1>Saludos, <?php echo htmlspecialchars($userData['nombre'] . " " . $userData['apellidos']); ?>!</h1>
     <h3>Tus datos son:</h3>
     <p>Email: <?php echo htmlspecialchars($userData['email']); ?></p>
     <p>Edad: <?php echo htmlspecialchars($userData['edad']); ?></p>
