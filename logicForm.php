@@ -139,8 +139,8 @@ if (empty($birth) || !DateTime::createFromFormat('Y-m-d', $birth)) {
 
 if (!empty($password1)) {
    if ($password1 === $password2) {
-      $pattern = "/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-=_+{};:,<.>]).{8,20}$/";
-
+      $pattern = "/^(?=.*[A-ZÑÁÉÍÓÚ])(?=.*[a-zñáéíóú])(?=.*\d)(?=.*[!@#$%^&*()-=_+{};:,<.>]).{8,20}$/";
+      
       if (preg_match_all($pattern, $password1)) {
          unset($_SESSION["passwordError"]);
 
