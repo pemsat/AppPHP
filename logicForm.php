@@ -2,8 +2,15 @@
 session_start();
 
 $error = false; //Variable de control de errores
-
+const TARGET_USER = '../../data/users.json';
+const TARGET_DIR = "../../data";
+const TARGET_IMG = "uploads/";
 $_SESSION['form_data'] = $_POST; //Variable para devolver datos correctos al usuario cuando se equivoca en uno o más campos
+
+//Creamos la carpeta de almacén de usuarios si no existe
+if(!is_dir(TARGET_DIR)) {
+   mkdir(TARGET_DIR,0755, true);
+}
 
 /**
  * FORMULARIO
@@ -32,7 +39,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
    $data = htmlspecialchars($data);
    return $data;
 }
-
 
 //funcion para comprobar datos de tipo texto (Nombre y Apellido/s)
 function test_text($data)
@@ -69,9 +75,9 @@ if (!empty($surname)) {
 }
 
 
-//Comprobación del email
+//Validación del email con comprobación en servidor de que no se repita
 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-   $usuariosJson = file_get_contents('../../data/users.json');
+   $usuariosJson = file_get_contents(TARGET_USER);
    $usuarios = json_decode($usuariosJson, true);
 
    foreach ($usuarios as $key => $usuario) {
@@ -139,12 +145,11 @@ if (!empty($password1)) {
  */
 
 // Validaciones del archivo
-$target_dir = "uploads/";
-$target_file = $target_dir . basename($fileToUpload["name"]);
+$target_file = TARGET_IMG . basename($fileToUpload["name"]);//
 $uploadOk = 1;
 $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 $randomNameFile = uniqid('file_',true) . '.' . $imageFileType;
-$upload = $target_dir . $randomNameFile;
+$upload = TARGET_IMG . $randomNameFile;
 
 if ($fileToUpload["error"] == 0 && !$error) {
    if (getimagesize($fileToUpload["tmp_name"]) === false) {
@@ -188,19 +193,18 @@ if ($error) {
       'imagen' => $randomNameFile
    ];
 
-   // Leer el archivo JSON existente
-   $filePath = '../../data/users.json';
-
+   //Variable para recoger los usuarios del archivo JSON
    $currentData = [];
-   if (file_exists($filePath)) {
-      $currentData = json_decode(file_get_contents($filePath), true);
+
+   if (file_exists(TARGET_USER)) {
+      $currentData = json_decode(file_get_contents(TARGET_USER), true);
    }
 
    // Agregar el nuevo usuario
    $currentData[] = $userData;
 
    // Guardar el nuevo conjunto de datos en el archivo JSON
-   file_put_contents($filePath, json_encode($currentData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+   file_put_contents(TARGET_USER, json_encode($currentData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
    //Terminar sesion y salir a login
    session_destroy();
