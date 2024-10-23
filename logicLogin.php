@@ -13,6 +13,22 @@ function test_input($data){
     return $data;
  }
 
+ //función para convertir cadenas de caracteres al formato Aaaa
+ function ucfirst_tr($string)
+{
+   $vocals = ['Á' => 'á', 'É' => 'é', 'Í' => 'í', 'Ó' => 'o', 'Ú' => 'u'];
+   $string = explode(" ",$string);
+   $result = [];
+   foreach($string as $str){
+   $str = mb_strtolower(strtr($str, $vocals));
+   $first = mb_substr($str, 0, 1);
+   $first = strtr($first, array_flip($vocals));
+   $first = mb_strtoupper($first);
+   $result[] = $first . mb_substr($str, 1);
+   }
+   return implode(" ",$result);
+}
+
 // Comprobamos si ya hay una sesión activa
 if (isset($_SESSION['user'])) {
     header("Location: user.php");//Redirigimos a página de usuario
@@ -30,7 +46,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $username = test_input($_POST['username']);
+    $username = ucfirst_tr($username);
     $userpassword = test_input($_POST['password']);
+    $userpassword = ucfirst_tr($userpassword);
 
     //Comparamos los datos recogidos y saneados con los guardados en JSON
     $users = json_decode(file_get_contents('../../data/users.json'), true);
