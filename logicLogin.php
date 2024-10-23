@@ -14,7 +14,7 @@ function test_input($data){
  }
 
  //función para convertir cadenas de caracteres al formato Aaaa
- function ucfirst_tr($string)
+ function capitalFirst($string)
 {
    $vocals = ['Á' => 'á', 'É' => 'é', 'Í' => 'í', 'Ó' => 'o', 'Ú' => 'u'];
    $string = explode(" ",$string);
@@ -46,9 +46,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $username = test_input($_POST['username']);
-    $username = ucfirst_tr($username);
+    $username = capitalFirst($username);
     $userpassword = test_input($_POST['password']);
-    $userpassword = ucfirst_tr($userpassword);
+    $userpassword = capitalFirst($userpassword);
 
     //Comparamos los datos recogidos y saneados con los guardados en JSON
     $users = json_decode(file_get_contents('../../data/users.json'), true);
