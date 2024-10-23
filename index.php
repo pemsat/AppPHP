@@ -21,7 +21,7 @@ if (isset($_COOKIE['recuerdo'])) {
                 <form class="login" method="post" action="<?php echo htmlspecialchars("logicLogin.php"); ?>">
                     <div class="login__field">
                         <i class="login__icon fas fa-user"></i>
-                        <input type="text" name="username" class="login__input" placeholder="Nombre / Email">
+                        <input type="text" name="username" class="login__input" placeholder="Email">
                     </div>
                     <div class="login__field">
                         <i class="login__icon fas fa-lock"></i>

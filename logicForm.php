@@ -47,6 +47,7 @@ function test_text($data)
    return preg_match_all($textpattern, $data);
 }
 
+//Funcion que transforma la entrada de datos a formato Aaaa y acepta tildes
 function capitalFirst($string)
 {
    $vocals = ['Á' => 'á', 'É' => 'é', 'Í' => 'í', 'Ó' => 'o', 'Ú' => 'u'];
