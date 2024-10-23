@@ -8,15 +8,15 @@ const TARGET_IMG = "uploads/";
 $_SESSION['form_data'] = $_POST; //Variable para devolver datos correctos al usuario cuando se equivoca en uno o más campos
 
 //Creamos la carpeta de almacén de usuarios si no existe
-if(!is_dir(TARGET_DIR)) {
-   mkdir(TARGET_DIR,0755, true);
+if (!is_dir(TARGET_DIR)) {
+   mkdir(TARGET_DIR, 0755, true);
 }
 
 /**
  * FORMULARIO
  */
 
- //Variables para controlar los datos de usuario
+//Variables para controlar los datos de usuario
 $name = $surname = $email = $birth = $age = $password1 = $password2 = $fileToUpload = "";
 
 //Funcion que recoge los datos y los pasa por una función antes de guardarlos en sus variables correspondientes
@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 //Funcion que sanitiza datos de entrada del usuario 
- function test_input($data)
+function test_input($data)
 {
    $data = trim($data);
    $data = stripslashes($data);
@@ -47,14 +47,30 @@ function test_text($data)
    return preg_match_all($textpattern, $data);
 }
 
+function capitalFirst($string)
+{
+   $vocals = ['Á' => 'á', 'É' => 'é', 'Í' => 'í', 'Ó' => 'o', 'Ú' => 'u'];
+   $string = explode(" ",$string);
+   $result = [];
+   foreach($string as $str){
+   $str = mb_strtolower(strtr($str, $vocals));
+   $first = mb_substr($str, 0, 1);
+   $first = strtr($first, array_flip($vocals));
+   $first = mb_strtoupper($first);
+   $result[] = $first . mb_substr($str, 1);
+   }
+   return implode(" ",$result);
+}
 
 //Comprobamos el nombre
 if (!empty($name)) {
    if (test_text($name) === 0) {
       $_SESSION["nameError"] = "El nombre sólo puede contener letras";
       $error = true;
-   } else
+   } else {
+      $name = capitalFirst($name);
       unset($_SESSION["nameError"]);
+   }
 } else {
    $_SESSION["nameError"] = "El nombre es obligatorio";
    $error = true;
@@ -67,6 +83,7 @@ if (!empty($surname)) {
       $_SESSION["surNameError"] = "El apellido solo puede contener letras";
       $error = true;
    } else {
+      $surname = capitalFirst($surname);
       unset($_SESSION["surNameError"]);
    }
 } else {
@@ -148,7 +165,7 @@ if (!empty($password1)) {
 $target_file = TARGET_IMG . basename($fileToUpload["name"]);//
 $uploadOk = 1;
 $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-$randomNameFile = uniqid('file_',true) . '.' . $imageFileType;
+$randomNameFile = uniqid('file_', true) . '.' . $imageFileType;
 $upload = TARGET_IMG . $randomNameFile;
 
 if ($fileToUpload["error"] == 0 && !$error) {
