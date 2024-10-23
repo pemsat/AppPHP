@@ -207,7 +207,7 @@ if ($error) {
       'email' => $email,
       'edad' => $age,
       'contraseña' => password_hash($password1, PASSWORD_DEFAULT), // Guarda la contraseña de forma segura
-      'imagen' => $randomNameFile
+      'imagen' => $upload
    ];
 
    //Variable para recoger los usuarios del archivo JSON
