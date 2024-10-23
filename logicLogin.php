@@ -48,8 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = test_input($_POST['username']);
     $username = capitalFirst($username);
     $userpassword = test_input($_POST['password']);
-    $userpassword = capitalFirst($userpassword);
-
+    
     //Comparamos los datos recogidos y saneados con los guardados en JSON
     $users = json_decode(file_get_contents('../../data/users.json'), true);
 
