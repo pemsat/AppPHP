@@ -18,6 +18,9 @@ if (isset($_COOKIE['recuerdo']) && !empty($_COOKIE['recuerdo'])) {
     foreach ($usuarios as $usuario) {
         if ($usuario['email'] === $_COOKIE['recuerdo']) {
             $_SESSION['user'] = $usuario; //Guardamos los datos del usuario en variable SESSION
+            if (empty($usuario['imagen'])){
+                $usuario['imagen']= "default.jpg"; //si la imagen está vacía, establecemos una por defecto
+            }
             $imagePath = TARGET_DIR . $usuario['imagen']; //concatenamos dirección de imagen con nombre para mostrarla correctamente
             break;
         }
@@ -30,6 +33,9 @@ if (!isset($_SESSION['user']) && !isset($_COOKIE['recuerdo'])) {
     exit();
 } else {
     $userData = $_SESSION['user']; //Guardamos los datos de la sesión de usuario mientras está conectado
+    if (empty($usuario['imagen'])) {
+        $userData['imagen'] = "default.jpg";
+    }
     $imagePath = TARGET_DIR . $userData['imagen'];
 }
 
