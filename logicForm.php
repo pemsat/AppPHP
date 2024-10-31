@@ -1,5 +1,6 @@
 <?php
 session_start();
+include "connection.php";
 
 $error = false; //Variable de control de errores
 const TARGET_USER = '../../data/users.json';
@@ -17,7 +18,7 @@ if (!is_dir(TARGET_DIR)) {
  */
 
 //Variables para controlar los datos de usuario
-$name = $surname = $email = $birth = $age = $password1 = $password2 = $fileToUpload = "";
+$name = $surname = $email = $birth = $age = $password1 = $password2 = $fileToUpload = $Passwd = "";
 
 //Funcion que recoge los datos y los pasa por una función antes de guardarlos en sus variables correspondientes
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -43,7 +44,7 @@ function test_input($data)
 //funcion para comprobar datos de tipo texto (Nombre y Apellido/s)
 function test_text($data)
 {
-   $textpattern = "/^[a-zA-ZÀ-ÿ\u00f1\u00d1]+(\s*[a-zA-ZÀ-ÿ\u00f1\u00d1]*)*[a-zA-ZÀ-ÿ\u00f1\u00d1]+$/";
+   $textpattern = "/^[a-zA-ZÀ-ÿ]+(\s*[a-zA-ZÀ-ÿ]*)*[a-zA-ZÀ-ÿ]+$/";
    return preg_match_all($textpattern, $data);
 }
 
@@ -51,17 +52,20 @@ function test_text($data)
 function capitalFirst($string)
 {
    $vocals = ['Á' => 'á', 'É' => 'é', 'Í' => 'í', 'Ó' => 'o', 'Ú' => 'u'];
-   $string = explode(" ",$string);
+   $string = explode(" ", $string);
    $result = [];
-   foreach($string as $str){
-   $str = mb_strtolower(strtr($str, $vocals));
-   $first = mb_substr($str, 0, 1);
-   $first = strtr($first, array_flip($vocals));
-   $first = mb_strtoupper($first);
-   $result[] = $first . mb_substr($str, 1);
+   foreach ($string as $str) {
+      $str = mb_strtolower(strtr($str, $vocals));
+      $first = mb_substr($str, 0, 1);
+      $first = strtr($first, array_flip($vocals));
+      $first = mb_strtoupper($first);
+      $result[] = $first . mb_substr($str, 1);
    }
-   return implode(" ",$result);
+   return implode(" ", $result);
 }
+
+//Funcion para conectar a base de datos
+
 
 //Comprobamos el nombre
 if (!empty($name)) {
@@ -95,17 +99,28 @@ if (!empty($surname)) {
 
 //Validación del email con comprobación en servidor de que no se repita
 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-   $usuariosJson = file_get_contents(TARGET_USER);
-   $usuarios = json_decode($usuariosJson, true);
+   
+   try {
+      $conn = connectBD();
+      $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :email");
 
-   foreach ($usuarios as $key => $usuario) {
-      if ($usuario['email'] === $email) {
+      // Bind the parameter to prevent SQL injection
+      $stmt->bindParam(':email', $email);
+      $stmt->execute();
+
+      // Fetch the resulting row(s) as an associative array
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      if (count($result) > 0) {
          $_SESSION["emailError"] = "E-mail ya registrado";
          $error = true;
       } else {
          unset($_SESSION["emailError"]);
       }
+   } catch (PDOException $e) {
+      echo "Error: " . $e->getMessage();
    }
+   $conn = null;
 } else {
    $_SESSION["emailError"] = "El e-mail es obligatorio";
    $error = true;
@@ -140,10 +155,10 @@ if (empty($birth) || !DateTime::createFromFormat('Y-m-d', $birth)) {
 if (!empty($password1)) {
    if ($password1 === $password2) {
       $pattern = "/^(?=.*[A-ZÑÁÉÍÓÚ])(?=.*[a-zñáéíóú])(?=.*\d)(?=.*[!@#$%^&*()-=_+{};:,<.>]).{8,20}$/";
-      
+
       if (preg_match_all($pattern, $password1)) {
          unset($_SESSION["passwordError"]);
-
+         $Passwd = password_hash($password1, PASSWORD_DEFAULT);
       } else {
          $_SESSION["passwordError"] = "La contraseña no cumple las reglas de seguridad";
          $error = true;
@@ -202,30 +217,38 @@ if ($error) {
    exit();
 
 } else {
-   $userData = [
-      'nombre' => $name,
-      'apellidos' => $surname,
-      'email' => $email,
-      'edad' => $age,
-      'contraseña' => password_hash($password1, PASSWORD_DEFAULT), // Guarda la contraseña de forma segura
-      'imagen' => $randomNameFile
-   ];
+   
+   try {
+      $conn = connectBD();
 
-   //Variable para recoger los usuarios del archivo JSON
-   $currentData = [];
+      // prepare sql and bind parameters
+      $stmt = $conn->prepare("INSERT INTO Usuarios (Firstname, Lastname, email, Birth, Passwd, Imagepath)
+     VALUES (:Firstname, :Lastname, :email, :Birth, :Passwd, :Imagepath)");
+      $stmt->bindParam(':Firstname', $firstnameBD);
+      $stmt->bindParam(':Lastname', $lastnameBD);
+      $stmt->bindParam(':email', $emailBD);
+      $stmt->bindParam(':Birth', $BirthBD);
+      $stmt->bindParam(':Passwd', $PasswdBD);
+      $stmt->bindParam(':Imagepath', $ImagepathBD);
 
-   if (file_exists(TARGET_USER)) {
-      $currentData = json_decode(file_get_contents(TARGET_USER), true);
+      // insert a row
+      $firstnameBD = $name;
+      $lastnameBD = $surname;
+      $emailBD = $email;
+      $BirthBD = $birth;
+      $PasswdBD = $Passwd;
+      $ImagepathBD = $randomNameFile;
+      $stmt->execute();
+
+      echo "New records created successfully";
+   } catch (PDOException $e) {
+      echo "Error: " . $e->getMessage();
    }
+   $conn = null;
 
-   // Agregar el nuevo usuario
-   $currentData[] = $userData;
-
-   // Guardar el nuevo conjunto de datos en el archivo JSON
-   file_put_contents(TARGET_USER, json_encode($currentData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
    //Terminar sesion y salir a login
    session_destroy();
    header("Location: index.php");
-   exit();
+   exit(); 
 }
