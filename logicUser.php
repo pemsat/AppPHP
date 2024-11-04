@@ -42,7 +42,7 @@ if (!isset($_SESSION['user']) && !isset($_COOKIE['recuerdo'])) {
     $userData = $_SESSION['user'][0]; //Guardamos los datos de la sesión de usuario mientras está conectado
 }
 
-if (empty(pathinfo(TARGET_DIR . $userData['Imagepath'], PATHINFO_EXTENSION))) {
+if (empty(pathinfo(TARGET_DIR . $userData['Imagepath'], PATHINFO_EXTENSION)) || !file_exists($userData['ImagePath'])) {
     $userData['Imagepath'] = "default.jpg";
     $imagePath = TARGET_DIR . $userData['Imagepath'];
 } 
