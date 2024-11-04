@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+include 'connection.php';
 
 /**
  * USUARIO
@@ -12,16 +12,25 @@ const TARGET_DIR = "uploads/";
 // Cargar la información del usuario desde la cookie, si existe
 if (isset($_COOKIE['recuerdo']) && !empty($_COOKIE['recuerdo'])) {
 
-    $usuariosJson = file_get_contents('../../data/users.json');
-    $usuarios = json_decode($usuariosJson, true);
+    try {
+        $conn = connectBD();
+        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :emailBD");
+        // Bind the parameter to prevent SQL injection
+        $stmt->bindParam(':emailBD', $_COOKIE['recuerdo']);
+        $stmt->execute();
 
-    foreach ($usuarios as $usuario) {
-        if ($usuario['email'] === $_COOKIE['recuerdo']) {
-            $_SESSION['user'] = $usuario; //Guardamos los datos del usuario en variable SESSION
-             break;
+        // Fetch the resulting row(s) as an associative array
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($result) > 0) {
+            $_SESSION["user"] = $result;
+
         }
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
     }
-    
+    $conn = null;
+
 }
 
 
@@ -30,13 +39,13 @@ if (!isset($_SESSION['user']) && !isset($_COOKIE['recuerdo'])) {
     header("Location: index.php");
     exit();
 } else {
-    $userData = $_SESSION['user']; //Guardamos los datos de la sesión de usuario mientras está conectado
+    $userData = $_SESSION['user'][0]; //Guardamos los datos de la sesión de usuario mientras está conectado
 }
 
-if (empty(pathinfo(TARGET_DIR . $_SESSION['user']['imagen'], PATHINFO_EXTENSION))) {
-    $_SESSION['user']['imagen'] = "default.jpg";
-    $imagePath = TARGET_DIR .  $_SESSION['user']['imagen'];
-}
+if (empty(pathinfo(TARGET_DIR . $userData['Imagepath'], PATHINFO_EXTENSION))) {
+    $userData['Imagepath'] = "default.jpg";
+    $imagePath = TARGET_DIR . $userData['Imagepath'];
+} 
 
 // Manejo de cierre de sesión
 if (isset($_POST['logout'])) {
@@ -47,18 +56,15 @@ if (isset($_POST['logout'])) {
 }
 
 // Función para eliminar cuenta de usuario
-function deleteUserAccount($userData)
+function deleteUserAccount($email)
 {
-    $usuariosJson = file_get_contents('../../data/users.json'); //Leemos el archivo JSON de usuarios
+    /* $usuariosJson = file_get_contents('../../data/users.json'); //Leemos el archivo JSON de usuarios
     $usuarios = json_decode($usuariosJson, true);
 
     //Búsqueda y verificación de datos de usuario para borrar
     foreach ($usuarios as $key => $usuario) {
-        if ($usuario['nombre'] === $userData['nombre'] && $usuario['email'] === $userData['email']) {
-            $imagePath = TARGET_DIR . $usuario['imagen']; //concatenamos a nivel local la dirección de imagen con su nombre
-            if (file_exists($imagePath)) {
-                unlink($imagePath); //Borramos la imagen después de comprobar que existe para evitar errores
-            }
+        if ($usuario['email'] === $userData['email']) {
+            unlink($imagePath); //Borramos la imagen
             unset($usuarios[$key]);//Borramos usuario
             break;
         }
@@ -68,11 +74,30 @@ function deleteUserAccount($userData)
         return true; //guardamos de nuevo la información de usuarios  y comprobamos si todo el proceso se ha realizado correctamente
     }
     return false;
+ */
+    try {
+        $conn = connectBD();
+
+        $stmt = $conn->prepare("DELETE FROM usuarios WHERE email = :email");
+        // Bind the parameter to prevent SQL injection
+        $stmt->bindParam(':emailBD', $email);
+
+
+        if ($stmt->execute()) {
+            return true;
+        } else
+            return false;
+
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+
+    $conn = null;
 }
 
 // Manejo de la eliminación de la cuenta
 if (isset($_POST['delete_account'])) {
-    if (deleteUserAccount($userData)) {
+    if (deleteUserAccount($userData['email'])) {
         session_destroy();
         header("Location: index.php");
         exit();

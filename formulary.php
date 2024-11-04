@@ -48,38 +48,48 @@
 
       <form method="post" action="<?php echo htmlspecialchars("logicForm.php"); ?>" enctype="multipart/form-data">
 
-        Nombre: <input type="text" name="name" size="31"
-          value="<?php echo isset($_SESSION['form_data']['name']) ? htmlspecialchars($_SESSION['form_data']['name']) : ''; ?>">
+        Nombre:
         <span class="nameError">*
           <?php echo isset($_SESSION['nameError']) ? htmlspecialchars($_SESSION['nameError']) : '' ?>
-        </span>
+        </span> 
+        <input type="text" name="name" size="31"
+          value="<?php echo isset($_SESSION['form_data']['name']) ? htmlspecialchars($_SESSION['form_data']['name']) : ''; ?>">
+        
         <br><br>
 
-        Apellidos: <input type="text" name="surname" size="29"
-          value="<?php echo isset($_SESSION['form_data']['surname']) ? htmlspecialchars($_SESSION['form_data']['surname']) : ''; ?>">
+        Apellidos:
         <span class="surnameError">*
           <?php echo isset($_SESSION['surNameError']) ? htmlspecialchars($_SESSION['surNameError']) : '' ?>
         </span>
+         <input type="text" name="surname" size="29"
+          value="<?php echo isset($_SESSION['form_data']['surname']) ? htmlspecialchars($_SESSION['form_data']['surname']) : ''; ?>">
+        
         <br><br>
 
-        E-mail: <input type="email" name="email" size="32"
-          value="<?php echo isset($_SESSION['form_data']['email']) ? htmlspecialchars($_SESSION['form_data']['email']) : ''; ?>">
+        E-mail:
         <span class="emailError">*
           <?php echo isset($_SESSION['emailError']) ? htmlspecialchars($_SESSION['emailError']) : '' ?>
         </span>
+         <input type="email" name="email" size="32"
+          value="<?php echo isset($_SESSION['form_data']['email']) ? htmlspecialchars($_SESSION['form_data']['email']) : ''; ?>">
+        
         <br><br>
 
-        Fecha de nacimiento: <input type="date" name="age" style="width:165px"
-          value="<?php echo isset($_SESSION['form_data']['age']) ? htmlspecialchars($_SESSION['form_data']['age']) : ''; ?>">
+        Fecha de nacimiento: 
         <span class="ageError">*
           <?php echo isset($_SESSION['ageError']) ? htmlspecialchars($_SESSION['ageError']) : ''; ?>
         </span>
+        <input type="date" name="age" style="width:165px"
+          value="<?php echo isset($_SESSION['form_data']['age']) ? htmlspecialchars($_SESSION['form_data']['age']) : ''; ?>">
+        
         <br><br>
 
-        Contraseña: <input type="password" name="password" size="28" placeholder="mín: 8 caracteres, Mayúscula, minúscula, símbolo y número">
+        Contraseña: 
         <span class="passwError">*
           <?php echo isset($_SESSION['passwordError']) ? htmlspecialchars($_SESSION['passwordError']) : '' ?>
         </span>
+        <input type="password" name="password" size="28" placeholder="mín: 8 caracteres, Mayúscula, minúscula, símbolo y número">
+        
         <br><br>
 
         Repetir contraseña: <input type="PASSWORD" name="password2" size="21">

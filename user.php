@@ -64,10 +64,10 @@
     </style>
 </head>
 <body>
-    <h1>Saludos, <?php echo htmlspecialchars($userData['nombre'] . " " . $userData['apellidos']); ?>!</h1>
+    <h1>Saludos, <?php echo htmlspecialchars($userData['FirstName'] . " " . $userData['LastName']); ?>!</h1>
     <h3>Tus datos son:</h3>
     <p>Email: <?php echo htmlspecialchars($userData['email']); ?></p>
-    <p>Edad: <?php echo htmlspecialchars($userData['edad']); ?></p>
+    <p>Edad: <?php echo htmlspecialchars($userData['Birth']); ?></p>
     <p><img src="<?php echo htmlspecialchars($imagePath); ?>" alt="Imagen de perfil"></p>
     <form method="post">
         <button type="submit" name="logout" onclick="return confirm('¿Estás seguro de que deseas cerrar sesión?');">Cerrar sesión</button>

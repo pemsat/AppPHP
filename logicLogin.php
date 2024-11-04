@@ -1,17 +1,19 @@
 <?php
 session_start();
+include 'connection.php';
 
 /** 
  * lOGIN
  */
 
 //Funcion que sanitiza datos de entrada del usuario 
-function test_input($data){
+function test_input($data)
+{
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
     return $data;
- }
+}
 
 // Comprobamos si ya hay una sesión activa
 if (isset($_SESSION['user'])) {
@@ -27,35 +29,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         header("Location: index.php");
         exit();
-    }
+    } else {
 
-    $username = test_input($_POST['username']);
-    $userpassword = test_input($_POST['password']);
-    
-    //Comparamos los datos recogidos y saneados con los guardados en JSON
-    $users = json_decode(file_get_contents('../../data/users.json'), true);
+        $username = test_input($_POST['username']);
+        $userpassword = test_input($_POST['password']);
 
-    foreach ($users as $user) {
-        if (($user['email'] === $username) && password_verify($userpassword, $user['contraseña'])) {
-            $_SESSION['user'] = $user; // Guarda los datos del usuario en la sesión
+
+        try {
+            $conn = connectBD();
+            $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :emailBD");
+            // Bind the parameter to prevent SQL injection
+            $stmt->bindParam(':emailBD', $username);
+            $stmt->execute();
+
+            // Fetch the resulting row(s) as an associative array
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            //Comprobamos si el usuario ha pulsado Recuérdame
-            if (isset($_POST["recuerdo"])) {
-                setcookie("recuerdo", $user['email'], time() + 86400, "/");
-            } else {
-                // Borramos la cookie si no se marca
-                if (isset($_COOKIE["recuerdo"])) {
-                    setcookie("recuerdo", "", time() - 3600, "/");
+            if ((count($result) > 0) && (password_verify($userpassword, $result[0]['Passwd']))) {
+                $_SESSION["user"] = $result;
+                //Comprobamos si el usuario ha pulsado Recuérdame
+                if (isset($_POST["recuerdo"])) {
+                    setcookie("recuerdo", $result[0]['email'], time() + 86400, "/");
+                } else {
+                    // Borramos la cookie si no se marca
+                    if (isset($_COOKIE["recuerdo"])) {
+                        setcookie("recuerdo", "", time() - 3600, "/");
+                    }
                 }
-            }
-            
-            header("Location: user.php"); // Redirige a la página de usuario
-            exit();
-        }
-    }
 
-    // Si las credenciales son incorrectas, recarga la pagina
-    $_SESSION['error'] = "No se ha encontrado un usuario con esas credenciales.";
-    header("Location: index.php");
-    exit();
+                $conn = null;
+                header("Location: user.php");
+                exit();
+
+            } else {
+                $_SESSION["error"] = "No se ha encontrado un usuario con esas credenciales.";
+                //header("Location: index.php");
+            }
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+        }
+        $conn = null;
+    }
 }
