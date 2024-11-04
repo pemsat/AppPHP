@@ -18,7 +18,7 @@ if (!is_dir(TARGET_DIR)) {
  */
 
 //Variables para controlar los datos de usuario
-$name = $surname = $email = $birth = $age = $password1 = $password2 = $fileToUpload = $Passwd = "";
+$name = $surname = $email = $birth = $age = $password1 = $password2 = $fileToUpload = $Passwd = $Token = "";
 
 //Funcion que recoge los datos y los pasa por una función antes de guardarlos en sus variables correspondientes
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -33,12 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 //Funcion que sanitiza datos de entrada del usuario 
-function test_input($data)
-{
-   $data = trim($data);
-   $data = stripslashes($data);
-   $data = htmlspecialchars($data);
-   return $data;
+function test_input($data){
+   return htmlspecialchars(stripslashes(trim($data)));
 }
 
 //funcion para comprobar datos de tipo texto (Nombre y Apellido/s)
@@ -115,6 +111,7 @@ if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
          $_SESSION["emailError"] = "E-mail ya registrado";
          $error = true;
       } else {
+         $Token = password_hash($email,PASSWORD_DEFAULT);
          unset($_SESSION["emailError"]);
       }
    } catch (PDOException $e) {
@@ -222,22 +219,24 @@ if ($error) {
       $conn = connectDB();
 
       // prepare sql and bind parameters
-      $stmt = $conn->prepare("INSERT INTO Usuarios (Firstname, Lastname, email, Birth, Passwd, Imagepath)
-     VALUES (:Firstname, :Lastname, :email, :Birth, :Passwd, :Imagepath)");
-      $stmt->bindParam(':Firstname', $firstnameBD);
-      $stmt->bindParam(':Lastname', $lastnameBD);
-      $stmt->bindParam(':email', $emailBD);
-      $stmt->bindParam(':Birth', $BirthBD);
-      $stmt->bindParam(':Passwd', $PasswdBD);
-      $stmt->bindParam(':Imagepath', $ImagepathBD);
+      $stmt = $conn->prepare("INSERT INTO Usuarios (Firstname, Lastname, email, Birth, Passwd, Imagepath, Token)
+     VALUES (:Firstname, :Lastname, :email, :Birth, :Passwd, :Imagepath, :Token)");
+      $stmt->bindParam(':Firstname', $firstnameDB);
+      $stmt->bindParam(':Lastname', $lastnameDB);
+      $stmt->bindParam(':email', $emailDB);
+      $stmt->bindParam(':Birth', $BirthDB);
+      $stmt->bindParam(':Passwd', $PasswdDB);
+      $stmt->bindParam(':Imagepath', $ImagepathDB);
+      $stmt->bindParam(':Token', $TokenDB);
 
       // insert a row
-      $firstnameBD = $name;
-      $lastnameBD = $surname;
-      $emailBD = $email;
-      $BirthBD = $birth;
-      $PasswdBD = $Passwd;
-      $ImagepathBD = $randomNameFile;
+      $firstnameDB = $name;
+      $lastnameDB = $surname;
+      $emailDB = $email;
+      $BirthDB = $birth;
+      $PasswdDB = $Passwd;
+      $ImagepathDB = $randomNameFile;
+      $TokenDB = $Token;
       $stmt->execute();
 
       echo "New records created successfully";

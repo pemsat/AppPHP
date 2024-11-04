@@ -15,9 +15,9 @@ if (isset($_COOKIE['recuerdo']) && !empty($_COOKIE['recuerdo'])) {
 
     try {
         $conn = connectDB();
-        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :emailDB");
+        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE Token = :TokenDB");
         // Bind the parameter to prevent SQL injection
-        $stmt->bindParam(':emailDB', $_COOKIE['recuerdo']);
+        $stmt->bindParam(':TokenDB', $_COOKIE['recuerdo']);
         $stmt->execute();
 
         // Fetch the resulting row(s) as an associative array

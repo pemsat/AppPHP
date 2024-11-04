@@ -7,12 +7,8 @@ require "connection.php";
  */
 
 //Funcion que sanitiza datos de entrada del usuario 
-function test_input($data)
-{
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-    return $data;
+function test_input($data){
+    return htmlspecialchars(stripslashes(trim($data)));
 }
 
 // Comprobamos si ya hay una sesión activa
@@ -26,7 +22,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (empty($_POST['username']) || empty($_POST['password'])) {
         $_SESSION['error'] = "Los campos no pueden estar vacíos.";
-
         header("Location: index.php");
         exit();
     } else {
@@ -48,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 //Comprobamos si el usuario ha pulsado Recuérdame
                 if (isset($_POST["recuerdo"])) {
-                    setcookie("recuerdo", $username, time() + 86400, "/", "", true, true);
+                    setcookie("recuerdo", $result[0]['Token'], time() + 86400, "/", "", true, true);
                 } else {
                     // Borramos la cookie si no se marca
                     setcookie("recuerdo", "", time() - 3600, "/");
