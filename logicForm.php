@@ -101,11 +101,11 @@ if (!empty($surname)) {
 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
    
    try {
-      $conn = connectBD();
-      $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :email");
+      $conn = connectDB();
+      $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :emailBD");
 
       // Bind the parameter to prevent SQL injection
-      $stmt->bindParam(':email', $email);
+      $stmt->bindParam(':emailBD', $email);
       $stmt->execute();
 
       // Fetch the resulting row(s) as an associative array
@@ -219,7 +219,7 @@ if ($error) {
 } else {
    
    try {
-      $conn = connectBD();
+      $conn = connectDB();
 
       // prepare sql and bind parameters
       $stmt = $conn->prepare("INSERT INTO Usuarios (Firstname, Lastname, email, Birth, Passwd, Imagepath)

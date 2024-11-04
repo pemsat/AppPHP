@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'connection.php';
+require "connection.php";
 
 /** 
  * lOGIN
@@ -34,40 +34,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $username = test_input($_POST['username']);
         $userpassword = test_input($_POST['password']);
 
-
         try {
-            $conn = connectBD();
-            $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :emailBD");
-            // Bind the parameter to prevent SQL injection
-            $stmt->bindParam(':emailBD', $username);
+            $conn = connectDB();
+            $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :emailDB");
+
+            $stmt->bindParam(':emailDB', $username);
             $stmt->execute();
 
-            // Fetch the resulting row(s) as an associative array
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             if ((count($result) > 0) && (password_verify($userpassword, $result[0]['Passwd']))) {
-                $_SESSION["user"] = $result;
+
+
                 //Comprobamos si el usuario ha pulsado Recuérdame
                 if (isset($_POST["recuerdo"])) {
-                    setcookie("recuerdo", $result[0]['email'], time() + 86400, "/");
+                    setcookie("recuerdo", $username, time() + 86400, "/", "", true, true);
                 } else {
                     // Borramos la cookie si no se marca
-                    if (isset($_COOKIE["recuerdo"])) {
-                        setcookie("recuerdo", "", time() - 3600, "/");
-                    }
+                    setcookie("recuerdo", "", time() - 3600, "/");
                 }
 
-                $conn = null;
-                header("Location: user.php");
+                $_SESSION['user'] = $result[0]; //guardamos la sesion de usuario
+                
+                header("Location: user.php"); // Redirige a la página de usuario
                 exit();
-
-            } else {
-                $_SESSION["error"] = "No se ha encontrado un usuario con esas credenciales.";
-                //header("Location: index.php");
             }
+
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
         }
         $conn = null;
+
+
+
+        // Si las credenciales son incorrectas, recarga la pagina
+        $_SESSION['error'] = "No se ha encontrado un usuario con esas credenciales.";
+        header("Location: index.php");
+        exit();
     }
 }
