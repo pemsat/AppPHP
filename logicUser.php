@@ -15,14 +15,16 @@ if (isset($_COOKIE['recuerdo']) && !empty($_COOKIE['recuerdo'])) {
 
     try {
         $conn = connectDB();
-        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE Token = :TokenDB");
-        // Bind the parameter to prevent SQL injection
-        $stmt->bindParam(':TokenDB', $_COOKIE['recuerdo']);
+
+        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE Token = :TokenDB"); //comprobamos si el valor de la cookie recibida está contenida en la BD
+
+        $stmt->bindParam(':TokenDB', $_COOKIE['recuerdo']); //Parametrizamos la variable para evitar inyección
         $stmt->execute();
 
-        // Fetch the resulting row(s) as an associative array
+        //Recogemos los datos devueltos en un array
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        //comprobamos si el array coniene datos antes de guardarlos en variable $_SESSION
         if (count($result) > 0) {
             $_SESSION["user"] = $result[0];
 
@@ -62,13 +64,15 @@ function deleteUserAccount($email,$image)
     try {
         $conn = connectDB();
 
+        //Preparamos el borrado de usuario en sql
         $stmt = $conn->prepare("DELETE FROM usuarios WHERE email = :emailBD");
-        // Bind the parameter to prevent SQL injection
+
+        //Parametrizamos para evitar inyección
         $stmt->bindParam(':emailBD', $email);
 
 
         if ($stmt->execute()) {
-            unlink($image);
+            unlink($image);//borramos la imagen si existe
             return true;
         } else
             return false;

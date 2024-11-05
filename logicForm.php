@@ -2,8 +2,8 @@
 session_start();
 include "connection.php";
 
-const TARGET_IMG = "uploads/";
-$error = false; //Variable de control de errores
+const TARGET_IMG = "uploads/";   //Variable de dirección de subida de imágenes de usuario
+$error = false;                  //Variable de control de errores
 $_SESSION['form_data'] = $_POST; //Variable para devolver datos correctos al usuario cuando se equivoca en uno o más campos
 
 /**
@@ -53,9 +53,6 @@ function capitalFirst($string)
    return implode(" ", $result);
 }
 
-//Funcion para conectar a base de datos
-
-
 //Comprobamos el nombre
 if (!empty($name)) {
    if (test_text($name) === 0) {
@@ -93,18 +90,18 @@ if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
       $conn = connectDB();
       $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :emailBD");
 
-      // Bind the parameter to prevent SQL injection
+      //Parametrizamos la variable de entrada para evitar inyección
       $stmt->bindParam(':emailBD', $email);
       $stmt->execute();
 
-      // Fetch the resulting row(s) as an associative array
+      // Recogemos todos los datos en un array
       $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
       if (count($result) > 0) {
          $_SESSION["emailError"] = "E-mail ya registrado";
          $error = true;
       } else {
-         $Token = password_hash($email,PASSWORD_DEFAULT);
+         $Token = uniqid('Token_',true);
          unset($_SESSION["emailError"]);
       }
    } catch (PDOException $e) {
@@ -200,7 +197,7 @@ if ($fileToUpload["error"] == 0 && !$error) {
 } else {
    unset($_SESSION["fileError"]);
 }
-//Comprobados todos los datos, guardamos en JSON o recargamos formulario
+//Comprobados todos los datos, guardamos en BD o recargamos formulario
 if ($error) {
 
    header("Location: formulary.php");
@@ -211,9 +208,9 @@ if ($error) {
    try {
       $conn = connectDB();
 
-      // prepare sql and bind parameters
+      // Preparamos la inserción de usuario
       $stmt = $conn->prepare("INSERT INTO Usuarios (Firstname, Lastname, email, Birth, Passwd, Imagepath, Token)
-     VALUES (:Firstname, :Lastname, :email, :Birth, :Passwd, :Imagepath, :Token)");
+      VALUES (:Firstname, :Lastname, :email, :Birth, :Passwd, :Imagepath, :Token)");
       $stmt->bindParam(':Firstname', $firstnameDB);
       $stmt->bindParam(':Lastname', $lastnameDB);
       $stmt->bindParam(':email', $emailDB);
@@ -222,7 +219,7 @@ if ($error) {
       $stmt->bindParam(':Imagepath', $ImagepathDB);
       $stmt->bindParam(':Token', $TokenDB);
 
-      // insert a row
+      // asigamos los paramétricos
       $firstnameDB = $name;
       $lastnameDB = $surname;
       $emailDB = $email;
@@ -232,7 +229,6 @@ if ($error) {
       $TokenDB = $Token;
       $stmt->execute();
 
-      echo "New records created successfully";
    } catch (PDOException $e) {
       echo "Error: " . $e->getMessage();
    }
