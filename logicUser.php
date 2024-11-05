@@ -8,7 +8,7 @@ require "connection.php";
  */
 
 //Variable para controlar la dirección de subida de imágenes
-const TARGET_DIR = "uploads/";
+const TARGET_IMG = "uploads/";
 
 // Cargar la información del usuario desde la cookie, si existe
 if (isset($_COOKIE['recuerdo']) && !empty($_COOKIE['recuerdo'])) {
@@ -43,10 +43,10 @@ if (!isset($_SESSION['user']) && !isset($_COOKIE['recuerdo'])) {
     $userData = $_SESSION['user']; //Guardamos los datos de la sesión de usuario mientras está conectado
 }
 
-if (empty(pathinfo($userData['Imagepath'], PATHINFO_EXTENSION)) || !file_exists(TARGET_DIR.$userData['Imagepath'])) {
+if (empty(pathinfo($userData['Imagepath'], PATHINFO_EXTENSION)) || !file_exists(TARGET_IMG.$userData['Imagepath'])) {
     $userData['Imagepath'] = "default.jpg";
 }
-$imagePath = TARGET_DIR . $userData['Imagepath'];
+$imagePath = TARGET_IMG . $userData['Imagepath'];
 
 // Manejo de cierre de sesión
 if (isset($_POST['logout'])) {
@@ -82,7 +82,7 @@ function deleteUserAccount($email,$image)
 
 // Manejo de la eliminación de la cuenta
 if (isset($_POST['delete_account'])) {
-    if (deleteUserAccount($userData['email'],TARGET_DIR.$_SESSION['user']['Imagepath'])) {
+    if (deleteUserAccount($userData['email'],TARGET_IMG.$_SESSION['user']['Imagepath'])) {
         setcookie("recuerdo", "", time() - 3600, "/");
         session_destroy();
         header("Location: index.php");

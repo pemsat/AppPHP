@@ -2,16 +2,9 @@
 session_start();
 include "connection.php";
 
-$error = false; //Variable de control de errores
-const TARGET_USER = '../../data/users.json';
-const TARGET_DIR = "../../data";
 const TARGET_IMG = "uploads/";
+$error = false; //Variable de control de errores
 $_SESSION['form_data'] = $_POST; //Variable para devolver datos correctos al usuario cuando se equivoca en uno o más campos
-
-//Creamos la carpeta de almacén de usuarios si no existe
-if (!is_dir(TARGET_DIR)) {
-   mkdir(TARGET_DIR, 0755, true);
-}
 
 /**
  * FORMULARIO
